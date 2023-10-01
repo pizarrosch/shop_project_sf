@@ -1,7 +1,7 @@
 import mysql, { Connection } from "mysql2/promise";
 
 const host = process.env.LOCAL_HOST;
-const port = Number(process.env.LOCAL_PORT);
+const port = Number(process.env.DATABASE_PORT);
 const username = process.env.ADMIN_USERNAME;
 const password = process.env.ADMIN_PASSWORD;
 const databaseName = process.env.DATABASE_NAME;

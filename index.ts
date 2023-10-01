@@ -4,6 +4,7 @@ import { Connection } from "mysql2/promise";
 import { initDataBase } from "./Server/services/db";
 import { initServer } from "./Server/services/server";
 import Shop_api from "./Shop_api";
+import Shop_admin from "./Shop_admin";
 
 export let server: Express;
 export let connection: Connection | null;
@@ -19,8 +20,11 @@ function initRouter() {
     const shopApi = Shop_api(connection!);
     server.use("/api", shopApi);
 
-    server.use("/", (_, res) => {
-        res.send("React App");
+    const shopAdmin = Shop_admin();
+    server.use("/admin", shopAdmin);
+
+    server.use("/", (req, res) => {
+        res.send(req.body.id);
     });
 }
 

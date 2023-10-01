@@ -10,7 +10,7 @@ export function initServer(): Express {
     app.use(jsonMiddleware);
 
     app.listen(port, host!, () => {
-        console.log(`Server running on port ${port}`);
+        console.log(`Server running on port ${port} and host ${host}`);
     });
 
     return app;
