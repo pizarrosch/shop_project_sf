@@ -1,7 +1,7 @@
 import express, { Request, Response, Router } from 'express';
 import {readFile, writeFile} from "fs/promises";
 import { v4 as uuidv4 } from 'uuid';
-import {CommentCreatePayload, ICommentEntity} from "../types";
+import {CommentCreatePayload, ICommentEntity} from "../../types";
 import {IComment} from "@Shared/types";
 import {connection} from "../../index";
 import {mapCommentsEntity} from '../services/mapping';

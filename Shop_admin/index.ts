@@ -3,11 +3,11 @@ import {adminProductsRouter} from "./controllers/products.controllers";
 
 export default function (): Express {
     const app = express();
+
+    app.set('view engine', 'ejs');
+    app.set('views', 'Shop_admin/views')
+
     app.use(express.json());
-
-    // app.set('views', 'Shop_admin/views')
-    // app.set('view engine', 'ejs');
-
     app.use("/", adminProductsRouter);
 
     return app;

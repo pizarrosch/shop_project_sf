@@ -6,4 +6,5 @@ const host = `http://${process.env.LOCAL_HOST}:${Number(process.env.LOCAL_PORT)}
 export async function getProducts() {
     const {data} = await axios.get<IProduct[]>(`${host}/products`);
     console.log(data.length)
+    return data || [];
 }

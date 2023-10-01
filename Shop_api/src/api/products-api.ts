@@ -8,7 +8,7 @@ import {
     ProductCreatePayload,
     IImageEntity,
     ImageCreatePayload
-} from "../types";
+} from "../../types";
 import {enhanceProductsCommentsAndImages, getProductsFilterQuery} from "../helpers";
 import {ResultSetHeader} from "mysql2";
 import {INSERT_IMAGE_QUERY, INSERT_PRODUCT_QUERY} from "../services/queries";

@@ -11,8 +11,8 @@ const throwServerError =(res: Response, err: Error) => {
 
 adminProductsRouter.get('/', async (req: Request, res: Response) => {
     try {
-        await getProducts();
-        res.send("products");
+        const products = await getProducts();
+        res.render("./products", { items: products });
     } catch (err: any) {
         throwServerError(res, err);
     }

@@ -1,4 +1,4 @@
-import {ICommentEntity, IProductSearchFilter, IImageEntity} from "./types";
+import {ICommentEntity, IProductSearchFilter, IImageEntity} from "../types";
 import { IComment, IImages, IProduct} from "@Shared/types";
 import {mapCommentEntity, mapImageEntity} from "./services/mapping";
 

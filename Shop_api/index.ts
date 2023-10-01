@@ -3,7 +3,7 @@ import { Connection } from "mysql2/promise";
 import {commentsRouter} from './src/api/express-comments-api';
 import {productsRouter} from './src/api/products-api';
 
-export let connection: Connection | null;
+export let connection: Connection;
 
 export default function (dbConnection: Connection): Express {
     const app = express();
