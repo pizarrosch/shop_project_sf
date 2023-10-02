@@ -25,4 +25,9 @@ export interface IProduct {
     thumbnail?: string
 }
 
-
+export interface IProductSearchPayload {
+    title?: string;
+    description?: string;
+    priceFrom?: number;
+    priceTo?: number;
+}

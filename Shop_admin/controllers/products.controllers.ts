@@ -1,5 +1,6 @@
 import { Router, Request, Response } from "express";
-import {getProducts} from "../models/products.model";
+import {getProducts, searchProducts} from "../models/products.model";
+import {IProductSearchPayload} from "@Shared/types";
 
 export const adminProductsRouter = Router();
 
@@ -12,7 +13,25 @@ const throwServerError =(res: Response, err: Error) => {
 adminProductsRouter.get('/', async (req: Request, res: Response) => {
     try {
         const products = await getProducts();
-        res.render("./products", { items: products });
+        res.render("./products", {
+            items: products,
+            queryParams: {}
+        });
+    } catch (err: any) {
+        throwServerError(res, err);
+    }
+});
+
+adminProductsRouter.get('/search', async (
+    req: Request<{}, {}, {}, IProductSearchPayload>,
+    res: Response
+) => {
+    try {
+        const products = await searchProducts(req.query);
+        res.render("products", {
+            items: products,
+            queryParams: req.query
+        });
     } catch (err: any) {
         throwServerError(res, err);
     }

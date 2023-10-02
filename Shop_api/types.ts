@@ -1,5 +1,5 @@
 import { RowDataPacket } from "mysql2/index";
-import { IComment, IImages, IProduct} from "@Shared/types";
+import {IComment, IImages, IProduct, IProductSearchPayload} from "@Shared/types";
 
 export interface ICommentEntity extends RowDataPacket {
     comment_id: string;
@@ -9,12 +9,7 @@ export interface ICommentEntity extends RowDataPacket {
     product_id: string;
 }
 
-export interface IProductSearchFilter {
-    title?: string;
-    description?: string;
-    priceFrom?: number;
-    priceTo?: number;
-}
+export interface IProductSearchFilter extends IProductSearchPayload {};
 
 export interface IProductEntity extends IProduct, RowDataPacket {
     product_id: string;
