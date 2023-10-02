@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import {getProducts, searchProducts} from "../models/products.model";
+import {getProduct, getProducts, removeProduct, searchProducts} from "../models/products.model";
 import {IProductSearchPayload} from "@Shared/types";
 
 export const adminProductsRouter = Router();
@@ -35,4 +35,46 @@ adminProductsRouter.get('/search', async (
     } catch (err: any) {
         throwServerError(res, err);
     }
+});
+
+adminProductsRouter.get('/:id', async (
+    req: Request<{ id: string }>,
+    res: Response
+) => {
+    try {
+        const product = await getProduct(req.params.id);
+
+        if (product) {
+            res.render("product/product", {
+                item: product
+            });
+        } else {
+            res.render("product/empty-product", {
+                id: req.params.id
+            });
+        }
+    } catch (err: any) {
+        throwServerError(res, err);
+    }
+});
+
+adminProductsRouter.get('/remove-product/:id', async (
+    req: Request<{ id: string }>,
+    res: Response
+) => {
+    try {
+        await removeProduct(req.params.id);
+        res.redirect(`/${process.env.ADMIN_PATH}`);
+    } catch (e: any) {
+        throwServerError(res, e);
+    }
+});
+
+adminProductsRouter.post('/save/:id', async (
+    req: Request<{ id: string }, {}, { title: string }>,
+    res: Response
+) => {
+    console.log(req.params.id);
+    console.log(req.body.title);
+    res.send("OK");
 });
