@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
-import {getProduct, getProducts, removeProduct, searchProducts} from "../models/products.model";
+import {getProduct, getProducts, removeProduct, searchProducts, updateProduct} from "../models/products.model";
 import {IProductSearchPayload} from "@Shared/types";
+import {IProductEditData} from "../types";
 
 export const adminProductsRouter = Router();
 
@@ -71,10 +72,13 @@ adminProductsRouter.get('/remove-product/:id', async (
 });
 
 adminProductsRouter.post('/save/:id', async (
-    req: Request<{ id: string }, {}, { title: string }>,
+    req: Request<{ id: string }, {}, IProductEditData>,
     res: Response
 ) => {
-    console.log(req.params.id);
-    console.log(req.body.title);
-    res.send("OK");
+    try {
+        const updatedProduct = await updateProduct(req.params.id, req.body);
+        res.send("OK");
+    } catch (err: any) {
+        throwServerError(res, err);
+    }
 });
