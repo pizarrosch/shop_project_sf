@@ -9,7 +9,7 @@ export default function (): Express {
     const app = express();
 
     app.use(session({
-        secret: "abcde",
+        secret: `${process.env.SECRET}`,
         saveUninitialized: false,
         resave: false
     }));

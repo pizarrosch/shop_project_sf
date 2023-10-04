@@ -60,8 +60,14 @@ adminProductsRouter.get('/remove-product/:id', async (
     res: Response
 ) => {
     try {
-        await removeProduct(req.params.id);
-        res.redirect(`/${process.env.ADMIN_PATH}`);
+        if (req.session.username === 'admin') {
+            await removeProduct(req.params.id);
+            res.redirect(`/${process.env.ADMIN_PATH}`);
+        } else {
+            res.status(403);
+            res.send('Forbidden!');
+            return;
+        }
     } catch (e: any) {
         throwServerError(res, e);
     }
