@@ -7,12 +7,18 @@ import {
     IProductSearchFilter,
     ProductCreatePayload,
     IImageEntity,
-    ImageCreatePayload
+    ImageCreatePayload, ProductAddImagesPayload, ImagesRemovePayload, IProductImageEntity
 } from "../../types";
 import {enhanceProductsCommentsAndImages, getProductsFilterQuery} from "../helpers";
 import {ResultSetHeader} from "mysql2";
-import {INSERT_IMAGE_QUERY, INSERT_PRODUCT_QUERY} from "../services/queries";
+import {
+    DELETE_IMAGES_QUERY,
+    INSERT_IMAGE_QUERY, INSERT_PRODUCT_IMAGES_QUERY,
+    INSERT_PRODUCT_QUERY,
+    REPLACE_PRODUCT_THUMBNAIL, UPDATE_PRODUCT_FIELDS
+} from "../services/queries";
 import { v4 as uuidv4 } from 'uuid';
+import {body, param, validationResult} from "express-validator";
 
 export const productsRouter = Router();
 
@@ -165,5 +171,151 @@ productsRouter.delete('/:id', async (
         res.end();
     } catch (err: any) {
         throwServerError(res, err);
+    }
+});
+
+productsRouter.post('/add-images', async (
+    req: Request<{}, {}, ProductAddImagesPayload>,
+    res: Response
+) => {
+    try {
+        const { productId, images } = req.body;
+
+        if (!images?.length) {
+            res.status(400);
+            res.send("Images array is empty");
+            return;
+        }
+
+        const values = images.map((image) => [uuidv4(), image.url, productId, image.main]);
+        await connection.query<ResultSetHeader>(INSERT_PRODUCT_IMAGES_QUERY, [values]);
+
+        res.status(201);
+        res.send(`Images for a product id:${productId} have been added!`);
+    } catch (e: any) {
+        throwServerError(res, e);
+    }
+});
+
+productsRouter.post('/remove-images', async (
+    req: Request<{}, {}, ImagesRemovePayload>,
+    res: Response
+) => {
+    try {
+        const imagesToRemove = req.body;
+
+        if (!imagesToRemove?.length) {
+            res.status(400);
+            res.send("Images array is empty");
+            return;
+        }
+
+        const [info] = await connection.query<ResultSetHeader>(DELETE_IMAGES_QUERY, [[imagesToRemove]]);
+
+        if (info.affectedRows === 0) {
+            res.status(404);
+            res.send("No one image has been removed");
+            return;
+        }
+
+        res.status(200);
+        res.send(`Images have been removed!`);
+    } catch (e: any) {
+        throwServerError(res, e);
+    }
+});
+
+productsRouter.post(
+    '/update-thumbnail/:id',
+    [
+        param('id').isUUID().withMessage('Product id is not UUID'),
+        body('newThumbnailId').isUUID().withMessage('New thumbnail id is empty or not UUID')
+    ],
+    async (
+    req: Request<{ id: string }, {}, { newThumbnailId: string }>,
+    res: Response
+) => {
+    try {
+        const errors = validationResult(req);
+        if(!errors.isEmpty()) {
+            res.status(400);
+            res.json({errors: errors.array()});
+            return;
+        }
+        const [currentThumbnailRows] = await connection.query<IProductImageEntity[]>(
+            "SELECT * FROM images WHERE product_id=? AND main=?",
+            [req.params.id, 1]
+        );
+
+        if (!currentThumbnailRows?.length || currentThumbnailRows.length > 1) {
+            res.status(400);
+            res.send("Incorrect product id");
+            return;
+        }
+
+        const [newThumbnailRows] = await connection.query<IProductImageEntity[]>(
+            "SELECT * FROM images WHERE product_id=? AND image_id=?",
+            [req.params.id, req.body.newThumbnailId]
+        );
+
+        if (newThumbnailRows?.length !== 1) {
+            res.status(400);
+            res.send("Incorrect new thumbnail id");
+            return;
+        }
+
+        const currentThumbnailId = currentThumbnailRows[0].image_id;
+        const [info] = await connection.query<ResultSetHeader>(
+            REPLACE_PRODUCT_THUMBNAIL,
+            [currentThumbnailId, req.body.newThumbnailId, currentThumbnailId, req.body.newThumbnailId]
+        );
+
+        if (info.affectedRows === 0) {
+            res.status(404);
+            res.send("No one image has been updated");
+            return;
+        }
+
+        res.status(200);
+        res.send("New product thumbnail has been set!");
+    } catch (e: any) {
+        throwServerError(res, e);
+    }
+});
+
+productsRouter.patch('/:id', async (
+    req: Request<{ id: string }, {}, ProductCreatePayload>,
+    res: Response
+) => {
+    try {
+        const { id } = req.params;
+
+        const [rows] = await connection.query<IProductEntity[]>(
+            "SELECT * FROM products WHERE product_id = ?",
+            [id]
+        );
+
+        if (!rows?.[0]) {
+            res.status(404);
+            res.send(`Product with id ${id} is not found`);
+            return;
+        }
+
+        const currentProduct = rows[0];
+
+        await connection.query<ResultSetHeader>(
+            UPDATE_PRODUCT_FIELDS,
+            [
+                req.body.hasOwnProperty("title") ? req.body.title : currentProduct.title,
+                req.body.hasOwnProperty("description") ? req.body.description : currentProduct.description,
+                req.body.hasOwnProperty("price") ? req.body.price : currentProduct.price,
+                id
+            ]
+        );
+
+        res.status(200);
+        res.send(`Product id:${id} has been added!`);
+    } catch (e: any) {
+        throwServerError(res, e);
     }
 });

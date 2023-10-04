@@ -26,3 +26,31 @@ export const  INSERT_IMAGE_QUERY = `
         VALUES 
         (?, ?, ?, ?)
     `;
+
+export const DELETE_IMAGES_QUERY = `
+  DELETE FROM images 
+  WHERE image_id IN ?;
+`;
+
+export const INSERT_PRODUCT_IMAGES_QUERY = `
+  INSERT INTO images
+  (image_id, url, product_id, main)
+  VALUES ?
+`;
+
+
+export const REPLACE_PRODUCT_THUMBNAIL = `
+  UPDATE images
+  SET main = CASE
+    WHEN image_id = ? THEN 0
+    WHEN image_id = ? THEN 1
+    ELSE main
+END
+WHERE image_id IN (?, ?);
+`;
+
+export const UPDATE_PRODUCT_FIELDS = `
+    UPDATE products 
+    SET title = ?, description = ?, price = ? 
+    WHERE product_id = ?
+`

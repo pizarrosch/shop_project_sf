@@ -7,6 +7,7 @@ import {connection} from "../../index";
 import {mapCommentsEntity} from '../services/mapping';
 import {ResultSetHeader} from "mysql2";
 import {FIND_DUPLICATE_QUERY, INSERT_COMMENT_QUERY} from "../services/queries";
+import {param, validationResult} from "express-validator";
 
 export const commentsRouter = Router();
 const app = express();
@@ -68,8 +69,21 @@ commentsRouter.get(`/`, async (req: Request, res: Response) => {
 });
 
 // GET function to get a comment by id
-commentsRouter.get(`/:id`, async (req: Request<{id: string}>, res: Response) => {
+commentsRouter.get(
+    `/:id`,
+    [
+        param('id').isUUID().withMessage('Comment id is not UUID')
+    ],
+    async (req: Request<{id: string}>, res: Response) => {
     try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.status(400);
+            res.json({errors: errors.array()});
+            return;
+        }
+
+
         const [rows] = await connection!.query<ICommentEntity[]>(
             'SELECT * FROM Comments c WHERE comment_id = ?',
             [req.params.id]
@@ -222,30 +236,4 @@ commentsRouter.delete(`/:id`, async (req: Request<{ id: string }>, res: Response
         res.status(500);
         res.send("Something went wrong");
     }
-
-
-    // let removedComment: IComment | null = null;
-    //
-    // const.ts filteredComments = comments.filter((comment) => {
-    //     if (id === comment.id.toString()) {
-    //         removedComment = comment;
-    //         return false;
-    //     }
-
-        // return true;
-    // });
-
-    // if (removedComment) {
-    //     await saveComments(filteredComments);
-    //     res.status(200);
-    //     res.send(removedComment);
-    //     return;
-    // }
-    //
-    // res.status(404);
-    // res.send(`Comment with id ${id} is not found`);
 });
-
-// app.listen(3000, () => {
-//     console.log(`Server running on port 3002`);
-// });

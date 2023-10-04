@@ -61,42 +61,33 @@ export async function updateProduct(
         const {
             data: currentProduct
         } = await axios.get < IProduct > (`${API_HOST}/products/${productId}`);
-        console.log('-->', currentProduct)
 
         if (formData.commentsToRemove) {
-            console.log('--> commentsStart')
             const commentsIdsToRemove = compileIdsToRemove(formData.commentsToRemove);
             const getDeleteCommentActions = () => commentsIdsToRemove.map(commentId => {
                 return axios.delete(`${API_HOST}/comments/${commentId}`);
             });
             await Promise.all(getDeleteCommentActions());
-            console.log('--> commentsEnd')
         }
 
         if (formData.imagesToRemove) {
-            console.log('--> imagesStart')
             const imagesIdsToRemove = compileIdsToRemove(formData.imagesToRemove);
             await axios.post(`${API_HOST}/products/remove-images`, imagesIdsToRemove);
-            console.log('--> imagesEnd')
         }
 
         if (formData.newImages) {
-            console.log('--> newImagesStart')
             const urls = splitNewImages(formData.newImages);
             const images = urls.map(url => ({ url, main: 0 }));
             if (!currentProduct.thumbnail) {
                 images[0].main = 1;
             }
             await axios.post(`${API_HOST}/products/add-images`, { productId, images });
-            console.log('--> newImagesEnd')
         }
 
         if (formData.mainImage && formData.mainImage !== currentProduct?.thumbnail) {
-            console.log('--> mainImagesStart')
             await axios.post(`${API_HOST}/products/update-thumbnail/${productId}`, {
                 newThumbnailId: formData.mainImage
             });
-            console.log('--> mainImagesEnd')
         }
 
         await axios.patch(`${API_HOST}/products/${productId}`, {
