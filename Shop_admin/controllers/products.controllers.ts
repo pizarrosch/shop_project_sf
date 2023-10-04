@@ -2,14 +2,9 @@ import { Router, Request, Response } from "express";
 import {getProduct, getProducts, removeProduct, searchProducts, updateProduct} from "../models/products.model";
 import {IProductSearchPayload} from "@Shared/types";
 import {IProductEditData} from "../types";
+import {throwServerError} from "./helpers";
 
 export const adminProductsRouter = Router();
-
-const throwServerError =(res: Response, err: Error) => {
-    console.debug(err.message);
-    res.status(500);
-    res.send('Something went wrong');
-}
 
 adminProductsRouter.get('/', async (req: Request, res: Response) => {
     try {
@@ -76,8 +71,8 @@ adminProductsRouter.post('/save/:id', async (
     res: Response
 ) => {
     try {
-        const updatedProduct = await updateProduct(req.params.id, req.body);
-        res.send("OK");
+       await updateProduct(req.params.id, req.body);
+        res.redirect(`/${process.env.ADMIN_PATH}/${req.params.id}`);
     } catch (err: any) {
         throwServerError(res, err);
     }

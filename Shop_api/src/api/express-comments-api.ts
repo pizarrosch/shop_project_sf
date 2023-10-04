@@ -106,30 +106,6 @@ const validateComment: CommentValidator = (body: CommentCreatePayload) => {
     }
 
     return null;
-
-//     another option is:
-
-// //     const requiredFields = new Set<keyof CommentCreatePayload>([
-// //         "name",
-// //         "email",
-// //         "body",
-// //         "postId"
-// //     ]);
-// //
-// //     let wrongFieldName;
-// //
-// //     requiredFields.forEach((fieldName) => {
-// //         if (!comment[fieldName]) {
-// //             wrongFieldName = fieldName;
-// //             return;
-// //         }
-// //     });
-// //
-// //     if (wrongFieldName) {
-// //         return `Field '${wrongFieldName}' is absent`;
-//     }
-// //
-// //     return null;
 }
 
 commentsRouter.post('/', async (req: Request<{}, {}, CommentCreatePayload>, res: Response) => {
@@ -175,7 +151,7 @@ commentsRouter.post('/', async (req: Request<{}, {}, CommentCreatePayload>, res:
 
 commentsRouter.patch('/', async (req: Request<{}, {}, Partial<IComment>>, res: Response) => {
     try {
-        let updateQuery = "UPDATE comments SET ";
+        let updateQuery = "UPDATE Comments SET ";
         const valuesToUpdate = [];
 
         ["name", "body", "email"].forEach(fieldName => {
