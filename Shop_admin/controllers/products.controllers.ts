@@ -1,4 +1,4 @@
-import { Router, Request, Response } from "express";
+import express, { Router, Request, Response } from "express";
 import {getProduct, getProducts, removeProduct, searchProducts, updateProduct} from "../models/products.model";
 import {IProductSearchPayload} from "@Shared/types";
 import {IProductEditData} from "../types";
@@ -8,6 +8,7 @@ export const adminProductsRouter = Router();
 
 adminProductsRouter.get('/', async (req: Request, res: Response) => {
     try {
+        console.log(req.session.username);
         const products = await getProducts();
         res.render("./products", {
             items: products,

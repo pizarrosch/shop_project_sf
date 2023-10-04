@@ -1,11 +1,10 @@
 import axios from "axios";
 import {IProduct, IProductSearchPayload} from "@Shared/types";
 import {IProductEditData} from "../types";
-
-const host = `http://${process.env.LOCAL_HOST}:${Number(process.env.LOCAL_PORT)}/${process.env.API_PATH}`;
+import {API_HOST} from "./const";
 
 export async function getProducts() {
-    const {data} = await axios.get<IProduct[]>(`${host}/products`);
+    const {data} = await axios.get<IProduct[]>(`${API_HOST}/products`);
     console.log(data.length)
     return data || [];
 }
@@ -14,7 +13,7 @@ export async function searchProducts(
     filter: IProductSearchPayload
 ): Promise<IProduct[]> {
     const { data } = await axios.get < IProduct[] > (
-        `${host}/products/search`,
+        `${API_HOST}/products/search`,
         { params: filter }
     );
     return data || [];
@@ -25,7 +24,7 @@ export async function getProduct(
 ): Promise<IProduct | null> {
     try {
         const { data } = await axios.get < IProduct > (
-            `${host}/products/${id}`
+            `${API_HOST}/products/${id}`
         );
         return data;
     } catch (e) {
@@ -34,11 +33,11 @@ export async function getProduct(
 }
 
 export async function removeProduct(id: string): Promise<void> {
-    await axios.delete(`${host}/products/${id}`);
+    await axios.delete(`${API_HOST}/products/${id}`);
 }
 
 export async function removeComment(id: string): Promise<void> {
-    await axios.delete(`${host}/comments/${id}`);
+    await axios.delete(`${API_HOST}/comments/${id}`);
 }
 
 function compileIdsToRemove(data: string | string[]): string[] {
@@ -61,14 +60,14 @@ export async function updateProduct(
         // запрашиваем у Products API товар до всех изменений
         const {
             data: currentProduct
-        } = await axios.get < IProduct > (`${host}/products/${productId}`);
+        } = await axios.get < IProduct > (`${API_HOST}/products/${productId}`);
         console.log('-->', currentProduct)
 
         if (formData.commentsToRemove) {
             console.log('--> commentsStart')
             const commentsIdsToRemove = compileIdsToRemove(formData.commentsToRemove);
             const getDeleteCommentActions = () => commentsIdsToRemove.map(commentId => {
-                return axios.delete(`${host}/comments/${commentId}`);
+                return axios.delete(`${API_HOST}/comments/${commentId}`);
             });
             await Promise.all(getDeleteCommentActions());
             console.log('--> commentsEnd')
@@ -77,7 +76,7 @@ export async function updateProduct(
         if (formData.imagesToRemove) {
             console.log('--> imagesStart')
             const imagesIdsToRemove = compileIdsToRemove(formData.imagesToRemove);
-            await axios.post(`${host}/products/remove-images`, imagesIdsToRemove);
+            await axios.post(`${API_HOST}/products/remove-images`, imagesIdsToRemove);
             console.log('--> imagesEnd')
         }
 
@@ -88,19 +87,19 @@ export async function updateProduct(
             if (!currentProduct.thumbnail) {
                 images[0].main = 1;
             }
-            await axios.post(`${host}/products/add-images`, { productId, images });
+            await axios.post(`${API_HOST}/products/add-images`, { productId, images });
             console.log('--> newImagesEnd')
         }
 
         if (formData.mainImage && formData.mainImage !== currentProduct?.thumbnail) {
             console.log('--> mainImagesStart')
-            await axios.post(`${host}/products/update-thumbnail/${productId}`, {
+            await axios.post(`${API_HOST}/products/update-thumbnail/${productId}`, {
                 newThumbnailId: formData.mainImage
             });
             console.log('--> mainImagesEnd')
         }
 
-        await axios.patch(`${host}/products/${productId}`, {
+        await axios.patch(`${API_HOST}/products/${productId}`, {
             title: formData.title,
             description: formData.description,
             price: Number(formData.price)

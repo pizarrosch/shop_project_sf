@@ -226,7 +226,7 @@ commentsRouter.delete(`/:id`, async (req: Request<{ id: string }>, res: Response
 
     // let removedComment: IComment | null = null;
     //
-    // const filteredComments = comments.filter((comment) => {
+    // const.ts filteredComments = comments.filter((comment) => {
     //     if (id === comment.id.toString()) {
     //         removedComment = comment;
     //         return false;

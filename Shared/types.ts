@@ -31,3 +31,8 @@ export interface IProductSearchPayload {
     priceFrom?: number;
     priceTo?: number;
 }
+
+export interface IAuthRequisites {
+    username: string;
+    password: string;
+}

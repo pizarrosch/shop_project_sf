@@ -1,5 +1,5 @@
 import { RowDataPacket } from "mysql2/index";
-import {IComment, IImages, IProduct, IProductSearchPayload} from "@Shared/types";
+import {IAuthRequisites, IComment, IImages, IProduct, IProductSearchPayload} from "@Shared/types";
 
 export interface ICommentEntity extends RowDataPacket {
     comment_id: string;
@@ -27,3 +27,6 @@ export type CommentCreatePayload = Omit<IComment, "id">;
 export type ImageCreatePayload = Omit<IImages, "id">;
 // Omit is a typescript helper, which returns the given type (first parameter in the generic type)
 // and excludes the given key (second parameter)
+export interface IUserRequisitesEntity extends IAuthRequisites, RowDataPacket {
+    id: number;
+}
